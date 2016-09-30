@@ -8,9 +8,9 @@ USRDOCDIR = usr/doc
 USRMANDIR = usr/man
 PROD_FILES = $(ROOT) $(CSS) $(PIGSHELL) $(LIBS) psty.py extra usr css/fonts images index.html
 # Clone from https://github.com/ganeshv/pegjs
-PEGJS = pegjs
-RONN = ronn
-
+PEGJS = ./node_modules/pegjs/bin/pegjs
+RONN = ./node_modules/ronn/bin/ronn
+MARKED=./node_modules/marked/bin/marked
 CURDIR = $(shell pwd)
 
 include local.mk
@@ -110,17 +110,17 @@ $(ROOT): src/root/bin src/root/usr src/root/etc src/root
 $(USRDOCS): $(USRDOCDIR)/%.html: src/doc/%.md usrheader.html usrfooter.html
 	@echo Generating $@ from $<
 	@cat usrheader.html >$@
-	@marked $< | sed 's|href=\(.*\).md|href=\1.html|g' >>$@
+	$(MARKED) $< | sed 's|href=\(.*\).md|href=\1.html|g' >>$@
 	@cat usrfooter.html >>$@
 
 usr/doc/README.html: README.md usrheader.html usrfooter.html
 	@echo Generating $@ from $<
 	@cat usrheader.html >$@
-	@marked $< | sed -e 's|href="src/doc/\(.*\).md|href="\1.html|g' -e 's|a href="\./|a href="../../|g' -e 's|img src="\./|img src="../../|g' >>$@
+	$(MARKED) $< | sed -e 's|href="src/doc/\(.*\).md|href="\1.html|g' -e 's|a href="\./|a href="../../|g' -e 's|img src="\./|img src="../../|g' >>$@
 	@cat usrfooter.html >>$@
 
 $(MANPAGES): $(USRMANDIR)/%.html: src/man/%.ronn 
-	$(RONN) -5 --style=toc --pipe $< >$@
+	$(RONN) < $< >$@
 
 $(LIBS): $(LIB_SOURCES)
 	cat $^ > $@
@@ -129,7 +129,7 @@ $(PIGSHELL): src/version.js $(CHECK_SOURCES) $(PARSER) src/end.js
 	cat $^ > $@
 
 $(PARSER):  src/pigpeg.pegjs
-	$(PEGJS) --export-var parser --allowed-start-rules start,TokenList $< $@
+	$(PEGJS) --format globals --export-var parser -o $@ --allowed-start-rules start,TokenList $< 
 
 $(CSS):	$(CSS_FILES)
 	cat $^ > $@
