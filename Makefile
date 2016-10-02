@@ -6,7 +6,7 @@ LIBS = libs.js
 RELDIR = build
 USRDOCDIR = usr/doc
 USRMANDIR = usr/man
-PROD_FILES = $(ROOT) $(CSS) $(PIGSHELL) $(LIBS) psty.py extra usr css/fonts images index.html
+PROD_FILES = $(ROOT) $(CSS) $(PIGSHELL) $(LIBS) psty.py extra usr css/fonts images index.html common
 # Clone from https://github.com/ganeshv/pegjs
 PEGJS = ./node_modules/pegjs/bin/pegjs
 RONN = ./node_modules/ronn/bin/ronn
@@ -25,6 +25,7 @@ VERSION_GIT = $(shell git rev-list --max-count=1 HEAD)
 # all its dependencies.
 
 CHECK_SOURCES = src/mimeMap.js\
+    src/old/cache.js\
     src/pigutils.js\
     src/vfs.js\
     src/jsonfs.js\
@@ -37,7 +38,6 @@ CHECK_SOURCES = src/mimeMap.js\
     src/mediaui.js\
     src/magic.js\
     src/lstorfs.js\
-    src/facebook.js\
     src/dev.js\
     src/init.js\
     common/generic-oauth2.js\
@@ -53,6 +53,7 @@ CHECK_SOURCES = src/mimeMap.js\
     src/dropbox.js\
     src/onedrive.js\
     src/s3.js
+#    src/facebook.js\
 
 CHECK_USR_SOURCES =
 
@@ -84,12 +85,14 @@ MANPAGES = $(addprefix $(USRMANDIR)/,$(patsubst %.ronn,%.html,$(notdir $(wildcar
 
 all: $(ROOT) $(DOCS) $(USRDOCS) $(MANPAGES) $(LIBS) $(PIGSHELL) $(CSS) etc/httpd-vhosts.conf usr/doc/README.html
 
+
 release: all
 	#@if [ "`git status -s -uno`" != "" ]; then echo Commit or rollback changes before running make release; exit 1; fi
-	make check
+	#make check
 	mkdir $(RELDIR)/$(VERSION_STR)
 	cp -r $(PROD_FILES) $(RELDIR)/$(VERSION_STR)/
 	find $(RELDIR)/$(VERSION_STR) -name .gitignore | xargs rm -f
+	cp -r $(RELDIR)/$(VERSION_STR)/* ../pigml/src/static/pigshell/v/$(VERSION_STR)/
 
 dev: $(ROOT) $(PARSER) $(DOCS)
 
@@ -102,7 +105,7 @@ src/version.js: FORCE
 	@rm -f $@.mk 
 
 $(ROOT): src/root/bin src/root/usr src/root/etc src/root
-	tar --posix -c -C src/root --exclude .gitignore -f $@ .
+	tar -v --posix -c -C src/root --exclude .gitignore -f $@ .
 
 # Generate html from markdown, changing md->html and tweaking relative links
 # Fragile html regexes.

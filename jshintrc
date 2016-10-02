@@ -88,7 +88,7 @@
     "PtermFS": true,
     "DownloadFS": true,
     "UploadFS": true,
-    "FacebookFS": true,
+    "FacebookFS": false,
     "TwitterFS": true,
     "rescroll": true,
     "uploadfs": true,

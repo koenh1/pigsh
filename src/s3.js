@@ -29,7 +29,7 @@ S3FS.defaults = {
     tx: "proxy"
 };
 
-S3FS.scripts = ["extra/aws-sdk.js"];
+S3FS.scripts = [pigshell.site.vurl + "extra/aws-sdk.js"];
 
 S3FS.lookup_uri = loadscripts(HttpFS.lookup_uri);
 

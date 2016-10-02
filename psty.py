@@ -67,7 +67,7 @@ psty_options = {
     "enable_cookies": False,     # Borrow cookies from Chrome/Firefox,
                                  # set False to disable sending all cookies
     "sslcert": False,            # Set to SSL certificate file
-    "cors_allow": "dev.pigshell.com"
+    "cors_allow": "localhost:8040"
 
 # Change the cors_allow setting if you are running pigshell on your own
 # site. *** DO NOT, UNDER ANY CIRCUMSTANCES, SET THIS TO '*'. ***

@@ -49,6 +49,8 @@ PstyFS.prototype.rename = function(srcfile, srcdir, sfilename, dstdir,
         spath = URI.parse(sfile.ident).path(),
         dpath = URI.parse(dstdir.ident).path();
 
+    updateCredentials(opts,self.fs)
+
     spath = spath.replace(/\/*$/, '');
     dpath = pathjoin(dpath, dfilename);
     if (self.bdlre && spath.match(self.bdlre)) {
@@ -77,6 +79,7 @@ function pef(cb, f) {
                 errid = errnames.indexOf(msg),
                 err = {};
             if (errid !== -1) {
+                console.log(err)
                 err.code = errnames[errid];
                 err.msg = Errno[errnames[errid]];
                 args[0] = err;
@@ -116,12 +119,21 @@ PstyFile.prototype._raw2meta = function(raw) {
     return raw;
 };
 
+function updateCredentials(opts,fs) {
+    if (opts.user === undefined)
+    try{if (fs.mountopts.user&&fs.mountopts.password) {
+        opts.user=fs.mountopts.user;
+        opts.password=fs.mountopts.password;
+    }} catch (ex) {}
+}
 
 PstyFile.prototype.read = function(opts, cb) {
     var self = this,
         ropts = opts.read || {},
         umime = self._ufile ? self._ufile.mime : null,
         dir = (umime === self.fs.opts.dirmime);
+
+    updateCredentials(opts,self.fs)
 
     if (dir) {
         var etag = ropts.etag,
@@ -147,6 +159,7 @@ PstyFile.prototype.read = function(opts, cb) {
 PstyFile.prototype.putdir = mkblob(function(file, blob, opts, cb) {
     var self = this,
         form = new FormData();
+    updateCredentials(opts,self.fs)
 
     form.append("op", "put");
     form.append("filename", file);
@@ -159,6 +172,7 @@ PstyFile.prototype.putdir = mkblob(function(file, blob, opts, cb) {
 
 PstyFile.prototype.link = function(str, linkname, opts, cb) {
     var self = this;
+    updateCredentials(opts,self.fs)
 
     if (!self.fs.opts.linkmime) {
         return cb(E("ENOSYS"));
@@ -168,6 +182,7 @@ PstyFile.prototype.link = function(str, linkname, opts, cb) {
 
 PstyFile.prototype.append = function(item, opts, cb) {
     var self = this;
+    updateCredentials(opts,self.fs)
 
     to('blob', item, {}, ef(cb, function(blob) {
         var form = new FormData();
@@ -194,6 +209,8 @@ PstyFile.prototype.rm = function(file, opts, cb) {
         form = new FormData(),
         name = dec_uri(basenamedir(file.ident));
 
+    updateCredentials(opts,self.fs)
+
     form.append("op", "rm");
     form.append("filename", name);
 
@@ -205,6 +222,7 @@ PstyFile.prototype.rm = function(file, opts, cb) {
 PstyFile.prototype.mkdir = function(file, opts, cb) {
     var self = this,
         form = new FormData();
+    updateCredentials(opts,self.fs)
 
     form.append("op", "mkdir");
     form.append("filename", file);
@@ -218,3 +236,5 @@ VFS.register_handler("PstyFS", PstyFS);
 VFS.register_uri_handler("http://localhost:50937", "PstyFS", {});
 VFS.register_uri_handler("https://localhost:50937", "PstyFS", {});
 VFS.register_media_handler("application/vnd.pigshell.link", "HttpLink", {});
+
+VFS.register_uri_handler("http://localhost:8040", "PstyFS", {});

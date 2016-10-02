@@ -35,7 +35,7 @@ Uname.prototype.next = check_next(do_docopt(function() {
     if (self.docopts["-n"]) {
         comps = [pigshell.site.name];
     } else if (self.docopts["-u"]) {
-        comps = [pigshell.site.url];
+        comps = [pigshell.site.vurl];
     } else if (self.docopts['-a']) {
         comps = ['Pigshell', pv.str, pv.git];
     } else {

@@ -1172,6 +1172,7 @@ Shell.prototype.parse = function(str, srcfile) {
     try {
         ast = parser.parse(str);
     } catch (e) {
+        console.log(e)
         return [parse_error(str, e), null];
     }
     //console.log(ast);

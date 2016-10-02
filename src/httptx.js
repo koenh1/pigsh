@@ -36,12 +36,14 @@ HttpTX.prototype.do_xhr = function(op, url, data, opts, cb, use_proxy) {
         rt = opts.responseType || "",
         params = opts.params ? $.param(opts.params) : '',
         proxy_url = (self.fallthrough && !use_proxy) ? '' : self.uri,
-        u = params ? proxy_url + url + '?' + params : proxy_url + url,
+        u = url.startsWith("http://localhost:8040/static")?url:params ? proxy_url + url + '?' + params : proxy_url + url,
         context = (opts.context && opts.context._abortable) ? opts.context : null;
-
     xhr.open(op, u, true);
     for (var prop in headers) {
         xhr.setRequestHeader(prop, headers[prop]);
+    }
+    if (opts.user&&opts.password) {
+        xhr.setRequestHeader("Authorization", "Basic " + btoa(opts.user + ":" + opts.password))
     }
     xhr.responseType = rt;
     if (context) {
@@ -75,7 +77,7 @@ HttpTX.prototype.do_xhr = function(op, url, data, opts, cb, use_proxy) {
         }
         if (xhr.status >= 400) {
             removeself();
-            return catcher({code: xhr.status, msg: xhr.statusText}, xhr);
+            return catcher({code: xhr.status, msg: xhr.statusText,responseText:xhr.responseType in {'':1,'text':1}?xhr.responseText:null}, xhr);
         }
         removeself();
         return catcher(null, xhr);

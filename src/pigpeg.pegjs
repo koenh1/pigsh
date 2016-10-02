@@ -3,6 +3,9 @@
  * This program is free software - see the file COPYING for license details.
  */
 
+{
+    var here_terminator=null;
+}
 start
     = ___ program:Program ___ EOF { return program; }
 
@@ -61,7 +64,7 @@ IfStatement "IfStatement"
     = "if" __ ifnot:("!" __)? cond:OrStatement EOS+ _ "then" (EOS _ / __) body:StatementBlock elif:(EOS _ ElifBlock)* EOS _ tail:IfTail {
         var result = {},
             ifblock = {},
-            op = (ifnot.length === 0) ? 'IF' : 'IFNOT',
+            op = (ifnot==null||ifnot.length === 0) ? 'IF' : 'IFNOT',
             ifblocks = [];
         ifblocks.push([op, cond, body]);
         for (var i = 0; i < elif.length; i++) {
@@ -74,7 +77,7 @@ IfStatement "IfStatement"
 ElifBlock "ElifBlock"
     = "elif" __ ifnot:("!" __)? cond:OrStatement EOS+ _ "then" (EOS _ / __) body:StatementBlock {
         var result;
-            op = (ifnot.length === 0) ? 'IF' : 'IFNOT';
+            op = (ifnot==null||ifnot.length === 0) ? 'IF' : 'IFNOT';
         result = [op, cond, body];
         return result;
     }

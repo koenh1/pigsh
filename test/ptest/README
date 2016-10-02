@@ -1,3 +1,0 @@
-This directory contains tests which must be run from inside pigshell, exposed
-via psty.py.
-

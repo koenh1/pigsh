@@ -57,7 +57,7 @@ Dir.prototype.readdir = function(opts, cb) {
                 delete bfiles[el.name];
             }
             if (bfile && ident === bfile.ident) {
-                if (el.mtime === bfile.mtime && el.size === bfile.size) {
+                if (propertyEquals(el,bfile,['mtime','size','readable','writable','executable','metadata','owner'])) {
                     newfiles[el.name] = bfile;
                     return lcb(null);
                 } else {

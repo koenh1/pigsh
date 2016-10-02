@@ -223,7 +223,7 @@ GoogleOA2.defaults = {
     scope: ["basic", "email", "drive", "picasa"],
     auth_url: "https://accounts.google.com/o/oauth2/auth",
     userinfo_url: "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=",
-    redirect_uri: pigshell.site.url + "/common/oauth2_redirect.html"
+    redirect_uri: pigshell.site.vurl + "/common/oauth2_redirect.html"
 };
 
 
@@ -326,7 +326,7 @@ WindowsOA2.defaults = {
     scope_sep: ",",
     auth_url: "https://login.live.com/oauth20_authorize.srf",
     userinfo_url: "https://apis.live.net/v5.0/me?access_token=",
-    redirect_uri: pigshell.site.url + "/common/oauth2_redirect.html"
+    redirect_uri: pigshell.site.vurl + "/common/oauth2_redirect.html"
 };
 
 WindowsOA2.prototype.userinfo = function(access_token, cb) {

@@ -29,7 +29,11 @@ var HttpFS = function(mountopts, uri) {
 
 inherit(HttpFS, Filesystem);
 
-HttpFS.defaults = { "tx": "proxy" };
+HttpFS.defaults = { "tx": "proxy",
+    "application/vnd.pigshell.dir": {
+        "cache_time": 1 * 60 * 1000 /* 1 minutes */
+    } 
+};
 
 HttpFS.lookup_uri = function(uri, opts, cb) {
     var self = this,
@@ -47,6 +51,10 @@ HttpFS.lookup_uri = function(uri, opts, cb) {
     }
     var file = new self.fileclass({name: basenamedir(uri), ident: uri, fs: fs});
     
+    if (mountopts.user) {
+        opts2.user=mountopts.user;
+        opts2.password=mountopts.password;
+    }
     delete opts2['mountopts'];
     delete opts2['fs'];
     return file.stat(opts2, cb);

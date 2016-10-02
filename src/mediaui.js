@@ -65,7 +65,7 @@ var PdfUI = {
         var self = this,
             template = '<div class="pdfui-browser"><div class="pt2">' + 
     '<button class="pdfui-close pt2">Close</button></div>' +
-    '<iframe src="' + pigshell.site.url +
+    '<iframe src="' + pigshell.site.vurl +
     '/common/lib/PDF.js-0.8.1326/generic/web/viewer.html"></div>';
         to('arraybuffer', item, {}, ef(cb, function(res) {
             var widget = $(template),

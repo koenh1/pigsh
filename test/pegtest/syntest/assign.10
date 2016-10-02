@@ -1,4 +1,0 @@
-/bin/ls -l
-foo/bar -l
-./foo/bar -l
-$a$b -l

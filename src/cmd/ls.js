@@ -258,6 +258,7 @@ Ls.prototype.next = check_next(do_docopt(function(opts, cb) {
                 d = islink(file) ? 'l' : isdir(file) ? 'd' : '-',
                 r = file.readable ? 'r' : '-',
                 w = file.writable ? 'w' : '-',
+                x = file.executable ? 'x' : '-',
                 count,
                 owner = (file.owner) ? file.owner.toString() : 'me',
                 size = file.size || 0,
@@ -271,7 +272,7 @@ Ls.prototype.next = check_next(do_docopt(function(opts, cb) {
             } else {
                 count = (d === 'd' && file.files) ? Object.keys(file.files).length: 1;
             }
-            out = sprintf('%1s%1s%1s %4d %-18s %8s %12s %s\n', d, r, w, count, owner.slice(0,18), size, datestr, name);
+            out = sprintf('%1s%1s%1s%1s %4d %-18s %8s %12s %s\n', d, r, w, x, count, owner.slice(0,18), size, datestr, name);
             return out;
         }
 

@@ -37,7 +37,7 @@ UploadFile.prototype.read = function(opts, cb) {
         data;
 
     if (cdata) {
-        return retf();
+        return retf(cdata);
     }
     var fr = new FileReader();
     fr.onload = setcur(function(e) {
@@ -96,7 +96,7 @@ UploadFile.prototype.populate = function(files, cb) {
     for (var i = 0, f; (f = files[i]); i++) {
         var newfile = {
             name: f.name,
-            ident: f.name,
+            ident: '/'+f.name,
             pident: uploadfs.root,
             fs: uploadfs.root.fs,
             mime: f.type,
@@ -126,11 +126,11 @@ var UploadFS = function() {
             mime: 'directory',
             mtime: 0,
             htmlClass: 'pfolder',
-            files: {},
+            files: [],
             populated: true
         };
     UploadFS.base.call(self);
-    self.ident = 'uploads';
+    self.ident = '/';
     self.root = new UploadFile(rootfile);
     self.root.files = {};
 };

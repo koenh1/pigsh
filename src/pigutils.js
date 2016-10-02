@@ -222,6 +222,9 @@ function err_stringify(err, str, usage) {
     if (isstring(err)) {
         return err;
     } else if (err.msg !== undefined) {
+        if (err.responseText) {
+            try{str+=' ('+JSON.parse(err.responseText).errorResponse.message+')';} catch(ex){}
+        }
         var cmdname = usage ? usage.split(' ')[0] : '';
         if (str) {
             return cmdname + ': ' + err.msg + ': ' + str;
@@ -700,6 +703,16 @@ function urisplit(uri) {
     return uri.match(/^([a-zA-Z0-9+\-\.]+):(.*)/);
 }
 
+function propertyEquals( x, y,properties ) {
+  if ( x === y ) return true;
+  for (var i in properties) {
+    var p=properties[i]
+    if (x[p] !== undefined&&x[p] instanceof Object||y[p] !==undefined&&y[p] instanceof Object) continue;
+    if ( x[ p ] === y[ p ] ) continue;
+    return false;
+  }
+  return true;
+}
 /*
  * Parse option string. These may occur in various places: as hash fragments,
  * arguments to the -o option in commands, and programatically.
@@ -712,6 +725,9 @@ function urisplit(uri) {
  * e.g. key1=value1,fs1.key1=value2,key3,key1=value3 would produce an object
  * { key1: [value1, value3], fs1: { key1: value2 }, key3: true }
  */
+
+
+
 
 function optstr_parse(str, parsenum) {
     if (!isstring(str)) {
@@ -835,12 +851,11 @@ function header_dict(xhr)
 }
 
 function isdir(file) {
-    return (file.mime === 'directory' || file.readdir !== undefined);
+    return (file.mime === 'directory' || file.mime ==='application/vnd.pigshell.dir' || (file.ident.endsWith('/')&&file.readdir !== undefined));
 }
 
 function isrealdir(file) {
-    return ((file.mime === 'directory' || file.readdir !== undefined) &&
-        !file._nodescend);
+    return isdir(file) && !file._nodescend;
 }
 
 function islink(file) {
@@ -859,6 +874,7 @@ function simplecp(tdir, tname, sfile, opts, cb) {
         context = opts.context;
 
     assert("simplecp.1", context, opts);
+
 
     if (typeof sfile.read !== 'function') {
         return cb(E('ENOSYS'));

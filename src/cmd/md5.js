@@ -23,9 +23,9 @@ MD5.prototype.usage = 'md5          -- compute MD5 checksum\n\n' +
     '    -h --help    Show this message.\n';
 
 MD5.scripts = [
-    "extra/crypto-js/core.js",
-    "extra/crypto-js/md5.js",
-    "extra/crypto-js/lib-typedarrays.js"
+    pigshell.site.vurl + "extra/crypto-js/core.js",
+    pigshell.site.vurl + "extra/crypto-js/md5.js",
+    pigshell.site.vurl + "extra/crypto-js/lib-typedarrays.js"
     ];
 
 MD5.prototype.next = check_next(loadscripts(do_docopt(fileargs(function() {
