@@ -57,6 +57,7 @@ Rm.prototype.next = check_next(do_docopt(function() {
         files.push(null);
         self._buffer = self._buffer.concat(files);
     }
+    self.cache={}
     return next();
 
     function next() {
@@ -123,11 +124,18 @@ Rm.prototype.next = check_next(do_docopt(function() {
             comps = pathsplit(pathname),
             last = comps[1],
             pdir = comps[0];
+        if (self.cache[pdir]) {
+            sys.rm(self, self.cache[pdir], last, self.cliopts, function(err, res) {
+                    rmlog(err, pathname);
+                    return cb(err, res);
+                })
+        } else
         sys.lookup(self, pdir, self.cliopts, function(err, dir) {
             if (err) {
                 rmlog(err, pathname);
                 return cb(err);
             }
+            self.cache[pdir]=dir;
             if (self.docopts['-n']) {
                 rmlog(null, pathname);
                 return cb(null, null);

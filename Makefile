@@ -105,7 +105,7 @@ src/version.js: FORCE
 	@rm -f $@.mk 
 
 $(ROOT): src/root/bin src/root/usr src/root/etc src/root
-	tar -v --posix -c -C src/root --exclude .gitignore -f $@ .
+	tar -v --posix -c -C src/root --exclude .gitignore --exclude .DS_Store -f $@ .
 
 # Generate html from markdown, changing md->html and tweaking relative links
 # Fragile html regexes.

@@ -51,8 +51,8 @@ HttpFS.lookup_uri = function(uri, opts, cb) {
     }
     var file = new self.fileclass({name: basenamedir(uri), ident: uri, fs: fs});
     
-    if (mountopts.user) {
-        opts2.user=mountopts.user;
+    if (mountopts.username) {
+        opts2.username=mountopts.user;
         opts2.password=mountopts.password;
     }
     delete opts2['mountopts'];

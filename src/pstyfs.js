@@ -58,6 +58,7 @@ PstyFS.prototype.rename = function(srcfile, srcdir, sfilename, dstdir,
     } else if (self.linkre && spath.match(self.linkre)) {
         dpath = dpath + "." + self.opts.linkext;
     }
+    if (pigshell.user) form.append("user",pigshell.user)
     form.append("op", "rename");
     form.append("src", spath);
     form.append("dst", dpath);
@@ -90,11 +91,30 @@ function pef(cb, f) {
     };
 }
 
+PstyFile.prototype.chmod = function(opts, cb) {
+    var self = this,
+        form = new FormData();
+    updateCredentials(opts,self.fs)
+
+    if (pigshell.user) form.append("user",pigshell.user)
+    form.append("op", "chmod");
+    form.append("data", opts);
+
+    self.fs.tx.POST(self.ident, form, opts, pef(cb, function(res) {
+            if (res.status==200) {
+                var data = parse_json(res.response);
+                return cb(null, data);
+            } else if (res.status<400) {
+                return cb(null, null);                
+            } else throw res
+    }));
+};
+
 PstyFile.prototype.getmeta = function(opts, cb) {
     var self = this,
         gopts = $.extend({}, opts, {'params': {'op': 'stat'},
             'responseType': 'text'});
-
+    if (pigshell.user) gopts.params.user=pigshell.user;
     self.fs.tx.GET(self.ident, gopts, ef(cb, function(res) {
         var headers = header_dict(res),
             mime = xhr_getmime(headers) || '';
@@ -120,9 +140,9 @@ PstyFile.prototype._raw2meta = function(raw) {
 };
 
 function updateCredentials(opts,fs) {
-    if (opts.user === undefined)
-    try{if (fs.mountopts.user&&fs.mountopts.password) {
-        opts.user=fs.mountopts.user;
+    if (opts.username === undefined)
+    try{if (fs.mountopts.username&&fs.mountopts.password) {
+        opts.username=fs.mountopts.username;
         opts.password=fs.mountopts.password;
     }} catch (ex) {}
 }
@@ -139,6 +159,7 @@ PstyFile.prototype.read = function(opts, cb) {
         var etag = ropts.etag,
             gopts = $.extend({}, opts);
         delete gopts["read"];
+        if (pigshell.user) gopts.params=$.extend({"user":pigshell.user},gopts.params);
         //gopts.params = etag ? {etag: etag} : undefined;
         self.fs.tx.GET(self.ident, gopts, ef(cb, function(res) {
             var data = parse_json(res.response);
@@ -161,6 +182,7 @@ PstyFile.prototype.putdir = mkblob(function(file, blob, opts, cb) {
         form = new FormData();
     updateCredentials(opts,self.fs)
 
+    if (pigshell.user) form.append("user",pigshell.user)
     form.append("op", "put");
     form.append("filename", file);
     form.append("data", blob);
@@ -187,6 +209,7 @@ PstyFile.prototype.append = function(item, opts, cb) {
     to('blob', item, {}, ef(cb, function(blob) {
         var form = new FormData();
 
+        if (pigshell.user) form.append("user",pigshell.user)
         form.append("op", "append");
         form.append("data", blob);
         self.fs.tx.POST(self.ident, form, opts,
@@ -211,6 +234,7 @@ PstyFile.prototype.rm = function(file, opts, cb) {
 
     updateCredentials(opts,self.fs)
 
+    if (pigshell.user) form.append("user",pigshell.user)
     form.append("op", "rm");
     form.append("filename", name);
 
@@ -224,6 +248,7 @@ PstyFile.prototype.mkdir = function(file, opts, cb) {
         form = new FormData();
     updateCredentials(opts,self.fs)
 
+    if (pigshell.user) form.append("user",pigshell.user)
     form.append("op", "mkdir");
     form.append("filename", file);
 

@@ -48,7 +48,7 @@ Dir.prototype.readdir = function(opts, cb) {
             bfiles = opts.nocache ? {} : self.files;
 
         var newfiles = {};
-        async.forEachSeries(flist, function(el, lcb) {
+        function ff(el, lcb) {
             var uri = URI.parse(el.ident),
                 ident = base.resolve(uri),
                 bfile = bfiles[el.name];
@@ -59,11 +59,11 @@ Dir.prototype.readdir = function(opts, cb) {
             if (bfile && ident === bfile.ident) {
                 if (propertyEquals(el,bfile,['mtime','size','readable','writable','executable','metadata','owner'])) {
                     newfiles[el.name] = bfile;
-                    return lcb(null);
+                    return async.nextTick(lcb);//lcb(null);//to avoid stack overflow
                 } else {
                     bfile.update(el, opts, function() {
                         newfiles[el.name] = bfile;
-                        return lcb(null);
+                        return async.nextTick(lcb);//lcb(null);
                     });
                 }
             } else {
@@ -71,16 +71,21 @@ Dir.prototype.readdir = function(opts, cb) {
                     file = new klass({ident: ident, name: el.name, fs: self.fs});
                 file.update(el, opts, function(err, res) {
                     newfiles[el.name] = file;
-                    return lcb(null);
+                    return async.nextTick(lcb);//lcb(null);
                 });
             }
-        }, function(err) {
+        }
+        function fe(err) {
             if (!opts.nocache) {
                 self.files = newfiles;
                 self.populated = true;
             }
             return cb(null, fstack_topfiles(newfiles));
-        });
+        }
+        //nextTick is slow, setImmediate not supported, work around
+        if (flist.length>100) async.forEach(flist,ff,fe)
+            else
+        async.forEachSeries(flist, ff, fe);
     }
 
     if (ropts.reload) {
@@ -109,11 +114,11 @@ Dir.prototype.readdir = function(opts, cb) {
             self._update(data, opts);
             self.dirstate = data.dirstate;
             if (!ropts.page && self.etag && self.etag === data.etag) {
-                console.log("Etag match", self.name);
+                //console.log("Etag match", self.name);
                 self.populated = true;
                 return cb(null, fstack_topfiles(self.files));
             } else {
-                console.log("Etag no match", self.name);
+                //console.log("Etag no match", self.name);
             }
             self.etag = data.etag;
             return makefiles(data);
@@ -156,7 +161,7 @@ Dir.prototype._update = function(meta, opts) {
     var self = this,
         changed = false;
 
-    if (self.mtime !== meta.mtime || (self.etag && self.etag !== meta.etag)) {
+    if ((self.mtime>0&&self.mtime !== meta.mtime) || (self.etag && self.etag !== meta.etag)) {
         changed = true;
     }
     
@@ -178,6 +183,9 @@ Dir.prototype._get_cookie = function(data) {
 
 Dir.prototype.lookup = function(name, opts, cb) {
     var self = this;
+    if (name!=''&&self.files[name]&&self._update_time<Date.now()-5000) {
+        cb(null, fstack_top(self.files[name]));
+    } else
     self.readdir(opts, ef(cb, function retblock(files) {
         if (name === '') { // '.', aka current directory
             return cb(null, fstack_top(self));

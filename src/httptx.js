@@ -42,8 +42,8 @@ HttpTX.prototype.do_xhr = function(op, url, data, opts, cb, use_proxy) {
     for (var prop in headers) {
         xhr.setRequestHeader(prop, headers[prop]);
     }
-    if (opts.user&&opts.password) {
-        xhr.setRequestHeader("Authorization", "Basic " + btoa(opts.user + ":" + opts.password))
+    if (opts.username&&opts.password) {
+        xhr.setRequestHeader("Authorization", "Basic " + btoa(opts.username + ":" + opts.password))
     }
     xhr.responseType = rt;
     if (context) {
