@@ -12,3 +12,4 @@ pigshell.js
 pigshell.css
 root.tar
 etc/httpd-vhosts.conf
+.DS_Store

@@ -91,20 +91,22 @@ function pef(cb, f) {
     };
 }
 
-PstyFile.prototype.chmod = function(opts, cb) {
+PstyFile.prototype.chmod = function(opts,arg,verbose, cb) {
     var self = this,
-        form = new FormData();
-    updateCredentials(opts,self.fs)
+        form = new FormData(),
+        gopts = $.extend({}, opts, {});
+    updateCredentials(gopts,self.fs)
 
     if (pigshell.user) form.append("user",pigshell.user)
     form.append("op", "chmod");
-    form.append("data", opts);
+    if (arg) form.append("data", typeof arg=='string'?arg:JSON.stringify(arg));
 
-    self.fs.tx.POST(self.ident, form, opts, pef(cb, function(res) {
+    self.fs.tx.POST(self.ident, form, gopts, pef(cb, function(res) {
             if (res.status==200) {
                 var data = parse_json(res.response);
                 return cb(null, data);
             } else if (res.status<400) {
+                if (verbose) return self.chmod(gopts,null,false,cb); else
                 return cb(null, null);                
             } else throw res
     }));
@@ -114,6 +116,7 @@ PstyFile.prototype.getmeta = function(opts, cb) {
     var self = this,
         gopts = $.extend({}, opts, {'params': {'op': 'stat'},
             'responseType': 'text'});
+    updateCredentials(gopts,self.fs)
     if (pigshell.user) gopts.params.user=pigshell.user;
     self.fs.tx.GET(self.ident, gopts, ef(cb, function(res) {
         var headers = header_dict(res),
