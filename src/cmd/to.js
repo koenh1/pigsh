@@ -26,7 +26,7 @@ To.prototype.usage = 'to           -- convert to type\n\n' +
 To.prototype.next = check_next(do_docopt(objargs(function() {
     var self = this,
         dtype = self.docopts['<type>'] || 'text',
-        valid = ["text", "lines", "blob", "canvas", "arraybuffer"],
+        valid = ["text", "lines", "blob", "canvas", "arraybuffer","object","base64"],
         opts = self.docopts['-m'] ? {mime: self.docopts['-m']} : {};
 
     if (self.inited === undefined) {
